@@ -4,7 +4,6 @@ import java.sql.SQLException;
 
 import com.jove.domain.enums.DatabaseEnum;
 import com.jove.domain.vo.Endereco;
-import com.jove.domain.vo.EnderecoNull;
 import com.jove.infrastructure.util.connection.ConexaoJDBC;
 
 public class EnderecoDAO extends ConexaoJDBC {
@@ -33,7 +32,7 @@ public class EnderecoDAO extends ConexaoJDBC {
 		} finally {
 			fecharConexao();
 		}
-		return new EnderecoNull();
+		return null;
 	}
 
 	/**

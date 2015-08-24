@@ -15,9 +15,6 @@ public class EnderecoService implements Serializable {
 	 */
 	public Endereco buscarEndereco(String cep) {
 		cep = cep.replace("-", "");
-		
-		// TODO Após aprender CDI, criar atributo EnderecoDAO
-		// na classe e injetá-lo ao invés de usar new EnderecoDAO()
 		return new EnderecoDAO().buscarEndereco(cep);
 	}
 }
