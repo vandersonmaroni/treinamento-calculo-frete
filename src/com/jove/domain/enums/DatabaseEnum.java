@@ -2,8 +2,7 @@ package com.jove.domain.enums;
 
 public enum DatabaseEnum {
 
-	ENDERECO("omaha_endereco"),
-	GETLOG("omaha_getlog");
+	ENDERECO("omaha_endereco");
 
 	private String nomeDatabase;
 
@@ -12,7 +11,7 @@ public enum DatabaseEnum {
 	}
 
 	/**
-	 * @return sufixo do nome do sufixoDatabase
+	 * @return nome da database
 	 */
 	public String getNomeDatabase() {
 		return nomeDatabase;

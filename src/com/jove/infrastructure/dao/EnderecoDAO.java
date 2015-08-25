@@ -3,7 +3,9 @@ package com.jove.infrastructure.dao;
 import java.sql.SQLException;
 
 import com.jove.domain.enums.DatabaseEnum;
+import com.jove.domain.vo.Cidade;
 import com.jove.domain.vo.Endereco;
+import com.jove.domain.vo.Regiao;
 import com.jove.infrastructure.util.connection.ConexaoJDBC;
 
 public class EnderecoDAO extends ConexaoJDBC {
@@ -16,15 +18,23 @@ public class EnderecoDAO extends ConexaoJDBC {
 	 * @throws SQLException
 	 */
 	public Endereco buscarEndereco(String cep) {
+		Endereco endereco = new Endereco();
 		try {
 			abrirConexao(DatabaseEnum.ENDERECO);
 			
-			preparedStatement = connection.prepareStatement("SELECT * FROM tend_endereco WHERE cep = '?'");
-			preparedStatement.setString(0, cep);
-			resultSet = preparedStatement.getResultSet();
+			preparedStatement = connection.prepareStatement("SELECT * FROM tend_endereco WHERE cep = ?");
+			preparedStatement.setString(1, cep);
+			resultSet = preparedStatement.executeQuery();
 			
 			if (resultSet.next()) {
-				return preencherEndereco();
+				String idBairro = resultSet.getString("id_bairro");
+				String idCidade = resultSet.getString("id_cidade");
+				
+				endereco.setEndereco(resultSet.getString("endereco").toUpperCase());
+				endereco.setCep(resultSet.getString("cep"));
+				endereco.setBairro(buscarBairro(idBairro));
+				endereco.setCidade(buscarCidade(idCidade));
+				return endereco;
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -36,38 +46,61 @@ public class EnderecoDAO extends ConexaoJDBC {
 	}
 
 	/**
-	 * Preenche o objeto Endereco com as informações encontradas
-	 * @return Endereco
+	 * Retorna o bairro referente ao ID informado
+	 * @param idBairro
+	 * @return String bairro
 	 * @throws SQLException
 	 */
-	private Endereco preencherEndereco() throws SQLException {
-		Endereco endereco = new Endereco();
-		
-		endereco.setEndereco(resultSet.getString("endereco").toUpperCase());
-		endereco.setIdBairro(resultSet.getString("id_bairro"));
-		endereco.setIdCidade(resultSet.getString("id_cidade"));
-		
-		// Pesquisando a cidade
-		preparedStatement = connection.prepareStatement("SELECT cidade, uf, codigo_ibge FROM tend_cidade WHERE id_cidade = '?' AND codigo_ibge <> 0");
-		preparedStatement.setString(0, endereco.getIdCidade());
-		resultSet = preparedStatement.getResultSet();
+	private String buscarBairro(String idBairro) throws SQLException {
+		preparedStatement = connection.prepareStatement("SELECT bairro FROM tend_bairro WHERE id_bairro = ?");
+		preparedStatement.setString(1, idBairro);
+		resultSet = preparedStatement.executeQuery();
 		
 		if (resultSet.next()) {
-			endereco.setCidade(resultSet.getString("cidade").toUpperCase());
-			endereco.setUf(resultSet.getString("uf").toUpperCase());
-			endereco.setCodigoIbgeCidade(resultSet.getString("codigo_ibge"));
-		} else {
-			return null;
+			return resultSet.getString("bairro").toUpperCase();
 		}
-		
-		// Pesquisando o bairro
-		preparedStatement = connection.prepareStatement("SELECT bairro FROM tend_bairro WHERE id_bairro = '?'");
-		preparedStatement.setString(0, endereco.getIdBairro());
-		resultSet = preparedStatement.getResultSet();
+		return null;
+	}
+	
+	/**
+	 * Retorna um objeto Cidade referente ao ID informado
+	 * @param idCidade
+	 * @return Cidade
+	 * @throws SQLException
+	 */
+	private Cidade buscarCidade(String idCidade) throws SQLException {
+		Cidade cidade = new Cidade();
+		preparedStatement = connection.prepareStatement("SELECT * FROM tend_cidade WHERE id_cidade = ? AND codigo_ibge <> 0");
+		preparedStatement.setString(1, idCidade);
+		resultSet = preparedStatement.executeQuery();
 		
 		if (resultSet.next()) {
-			endereco.setBairro(resultSet.getString("bairro").toUpperCase());
+			cidade.setIdCidade(resultSet.getInt("id_cidade"));
+			cidade.setNomeCidade(resultSet.getString("cidade").toUpperCase());
+			cidade.setUfCidade(resultSet.getString("uf").toUpperCase());
+			String idRegiao = resultSet.getString("id_regiao");
+			cidade.setRegiao(buscarRegiao(idRegiao));
 		}
-		return endereco;
+		return cidade;
+	}
+	
+	/**
+	 * Retorna um objeto Regiao referente ao ID informado
+	 * @param idRegiao
+	 * @return Regiao
+	 * @throws SQLException
+	 */
+	private Regiao buscarRegiao(String idRegiao) throws SQLException {
+		Regiao regiao = new Regiao();
+		preparedStatement = connection.prepareStatement("SELECT * FROM tend_regiao WHERE id_regiao = ?");
+		preparedStatement.setString(1, idRegiao);
+		resultSet = preparedStatement.executeQuery();
+		
+		if (resultSet.next()) {
+			regiao.setIdRegiao(resultSet.getInt("id_regiao"));
+			regiao.setNomeRegiao(resultSet.getString("regiao").toUpperCase());
+			regiao.setUf(resultSet.getString("uf").toUpperCase());
+		}
+		return regiao;
 	}
 }

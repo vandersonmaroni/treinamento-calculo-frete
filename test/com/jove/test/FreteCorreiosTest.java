@@ -10,10 +10,10 @@ public class FreteCorreiosTest {
 	@Test
 	public void calcularFrete() {
 		String cepOrigem = JOptionPane.showInputDialog(null, "Informe o CEP de Origem");
-		Assert.assertNotNull(cepOrigem);
+		Assert.assertTrue("CEP de Origem não informado", !cepOrigem.isEmpty());
 		
 		String cepDestino = JOptionPane.showInputDialog(null, "Informe o CEP de Destino");
-		Assert.assertNotNull(cepDestino);
+		Assert.assertTrue("CEP de Destino não informado", !cepDestino.isEmpty());
 		
 		// TODO Adicionar lógica e chamada de services para calcular o frete e exibir
 	}

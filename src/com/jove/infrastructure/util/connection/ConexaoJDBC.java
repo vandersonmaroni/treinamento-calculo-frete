@@ -4,12 +4,12 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLSyntaxErrorException;
 
 import com.jove.domain.enums.DatabaseEnum;
 
 /**
  * Classe de Conexão JDBC
- * @author Nicolas Ibanheiz
  */
 public class ConexaoJDBC {
 
@@ -17,28 +17,32 @@ public class ConexaoJDBC {
 	protected PreparedStatement preparedStatement;
 	protected ResultSet resultSet;
 	
-	private static String username = "";
-	private static String password = "";
+	// Informações de usuário hardcoded somente neste exercício
+	private static final String USERNAME = "usuario";
+	private static final String PASSWORD = "senha";
 	
 	/**
-	 * Cria e abre a conexão
-	 * @author Nicolas Ibanheiz 
+	 * Cria e abre a conexão com a base de dados
 	 */
 	public void abrirConexao(DatabaseEnum databaseEnum) {
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 			String url = "jdbc:mysql://localhost:3306/".concat(databaseEnum.getNomeDatabase());
-			String username = ConexaoJDBC.username;
-			String password = ConexaoJDBC.password;
+			String username = ConexaoJDBC.USERNAME;
+			String password = ConexaoJDBC.PASSWORD;
 			connection = DriverManager.getConnection(url, username, password);
+			
+		} catch (SQLSyntaxErrorException e) {
+			System.out.println("Erro de sintaxe na URL da conexão: ".concat(e.getMessage()));
+			e.printStackTrace();
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 	
 	/**
-	 * Fecha a conexão
-	 * @author Nicolas Ibanheiz 
+	 * Fecha a conexão com a base de dados
 	 */
 	public void fecharConexao() {
 		try {
